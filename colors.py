@@ -1,6 +1,4 @@
-from tkinter import *
 from enum import Enum
-
 
 class Color(Enum):
     WHITE = 0
@@ -9,7 +7,3 @@ class Color(Enum):
     RED = 3
     BLUE = 4
     YELLOW = 5
-
-
-for color in Color:
-    print(color)

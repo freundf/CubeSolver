@@ -1,15 +1,8 @@
 from tkinter import *
 import numpy as np
-from enum import Enum
 
 
-class Color(Enum):
-    WHITE = 0
-    ORANGE = 1
-    GREEN = 2
-    RED = 3
-    BLUE = 4
-    YELLOW = 5
+from colors import Color
 
 
 rot_xy_cw = np.array([[0, 1, 0],
@@ -44,7 +37,7 @@ cube_state = [[color] * 9 for color in Color]
               | 5  6  7 |
     +---------+---------+---------+---------+
     | 0  1  2 | 0  1  2 | 0  1  2 | 0  1  2 |
-    | 3 [2] 4 | 3 [1] 4 | 3 [4] 4 | 3 [3] 4 |
+    | 3 [1] 4 | 3 [2] 4 | 3 [3] 4 | 3 [4] 4 |
     | 5  6  7 | 5  6  7 | 5  6  7 | 5  6  7 |
     +---------+---------+---------+---------+
               | 0  1  2 |
@@ -52,6 +45,23 @@ cube_state = [[color] * 9 for color in Color]
               | 5  6  7 |
               +---------+
 """
+face_axis = {
+    "F": (1, -1, 0),
+    "B": (-1, -1, 0),
+    "U": (1, 0, 1),
+    "D": (1, 0, -1),
+    "R": (0, -1, -1),
+    "L": (0, -1, 1),
+}
+
+face_encoding = {
+    "F": [0, 1],
+    "B": [0, 1],
+    "U": [0, 2],
+    "D": [0, 2],
+    "R": [2, 1],
+    "L": [2, 1],
+}
 
 
 class Piece:
@@ -64,19 +74,25 @@ class Piece:
         Color.YELLOW: "yellow",
     }
 
-    def __init__(self, pos: list, color: list):
+    def __init__(self, pos, color):
         self.pos = pos  # pos ist eine Liste mit Koordinaten (x, y, z)
         self.color = color
+        self.rotation = 0
 
-    def print_piece(self):
-        print("Position:", self.pos)
-        print("Colors:", "X:", self.color[0], "Y:", self.color[1], "Z:", self.color[2])
+    def __str__(self):
+        pos = "Position: "
+        for i in self.pos:
+            pos += str(i) + " "
+
+        color_list = [self.colors.get(color) if color is not None else "None" for color in self.color]
+        colors = "Colors:  X:" + color_list[0] + "  Y:" + color_list[1] + "  Z:" + color_list[2]
+        return pos + "\n" + colors
 
     def rotate(self, matrix):
         pos_mat = np.array([[self.pos[0]], [self.pos[1]], [self.pos[2]]])
         pos_mat = np.matmul(matrix, pos_mat)
 
-        self.pos[0], self.pos[1], self.pos[2] = pos_mat[0][0], pos_mat[1][0], pos_mat[2][0]
+        self.pos = pos_mat[0][0], pos_mat[1][0], pos_mat[2][0]
         self.swap_colors(matrix)
 
     def swap_colors(self, matrix):
@@ -105,39 +121,73 @@ class Cube:
 
     def __init__(self, state=None):
         if state is None:
-            state = cube_state
+            state = [[color] * 9 for color in Color]
 
-        self.pieces = (Piece([-1, 1, -1], [cube_lst[18], cube_lst[0], cube_lst[29]]),
-                       Piece([0, 1, -1], [None, cube_lst[1], cube_lst[28]]),
-                       Piece([1, 1, -1], [cube_lst[38], cube_lst[2], cube_lst[27]]),
-                       Piece([-1, 1, 0], [cube_lst[21], cube_lst[3], None]),
-                       Piece([0, 1, 0], [None, cube_lst[4], None]),
-                       Piece([1, 1, 0], [cube_lst[39], cube_lst[5], None]),
-                       Piece([-1, 1, 1], [cube_lst[20], cube_lst[6], cube_lst[9]]),
-                       Piece([0, 1, 1], [None, cube_lst[7], cube_lst[10]]),
-                       Piece([1, 1, 1], [cube_lst[36], cube_lst[8], cube_lst[11]]),
+        self.pieces = (Piece([-1, 1, -1], [state[1][0], state[0][0], state[4][2]]),
+                       Piece([0, 1, -1], [None, state[0][1], state[4][1]]),
+                       Piece([1, 1, -1], [state[3][2], state[0][2], state[4][0]]),
+                       Piece([-1, 1, 0], [state[1][1], state[0][3], None]),
+                       Piece([0, 1, 0], [None, state[0][4], None]),
+                       Piece([1, 1, 0], [state[3][1], state[0][5], None]),
+                       Piece([-1, 1, 1], [state[1][2], state[0][6], state[2][0]]),
+                       Piece([0, 1, 1], [None, state[0][7], state[2][1]]),
+                       Piece([1, 1, 1], [state[3][0], state[0][8], state[2][2]]),
 
-                       Piece([-1, 0, -1], [cube_lst[21], None, cube_lst[32]]),
-                       Piece([0, 0, -1], [None, None, cube_lst[31]]),
-                       Piece([1, 0, -1], [cube_lst[41], None, cube_lst[30]]),
-                       Piece([-1, 0, 0], [cube_lst[22], None, None]),
+                       Piece([-1, 0, -1], [state[1][3], None, state[4][5]]),
+                       Piece([0, 0, -1], [None, None, state[4][4]]),
+                       Piece([1, 0, -1], [state[3][5], None, state[4][3]]),
+                       Piece([-1, 0, 0], [state[1][4], None, None]),
                        Piece([0, 0, 0], [None, None, None]),
-                       Piece([1, 0, 0], [cube_lst[40], None, None]),
-                       Piece([-1, 0, 1], [cube_lst[23], None, cube_lst[12]]),
-                       Piece([0, 0, 1], [None, None, cube_lst[13]]),
-                       Piece([1, 0, 1], [cube_lst[39], None, cube_lst[14]]),
+                       Piece([1, 0, 0], [state[3][4], None, None]),
+                       Piece([-1, 0, 1], [state[1][5], None, state[2][3]]),
+                       Piece([0, 0, 1], [None, None, state[2][4]]),
+                       Piece([1, 0, 1], [state[3][5], None, state[2][5]]),
 
-                       Piece([-1, -1, -1], [cube_lst[24], cube_lst[51], cube_lst[35]]),
-                       Piece([0, -1, -1], [None, cube_lst[52], cube_lst[34]]),
-                       Piece([1, -1, -1], [cube_lst[44], cube_lst[53], cube_lst[33]]),
-                       Piece([-1, -1, 0], [cube_lst[25], cube_lst[48], None]),
-                       Piece([0, -1, 0], [None, cube_lst[49], None]),
-                       Piece([1, -1, 0], [cube_lst[43], cube_lst[50], None]),
-                       Piece([-1, -1, 1], [cube_lst[26], cube_lst[45], cube_lst[15]]),
-                       Piece([0, -1, 1], [None, cube_lst[46], cube_lst[16]]),
-                       Piece([1, -1, 1], [cube_lst[42], cube_lst[47], cube_lst[17]]))
+                       Piece([-1, -1, -1], [state[1][6], state[5][6], state[4][8]]),
+                       Piece([0, -1, -1], [None, state[5][7], state[4][7]]),
+                       Piece([1, -1, -1], [state[3][8], state[5][8], state[4][6]]),
+                       Piece([-1, -1, 0], [state[1][7], state[5][3], None]),
+                       Piece([0, -1, 0], [None, state[5][4], None]),
+                       Piece([1, -1, 0], [state[3][7], state[5][5], None]),
+                       Piece([-1, -1, 1], [state[1][8], state[5][0], state[2][6]]),
+                       Piece([0, -1, 1], [None, state[5][1], state[2][7]]),
+                       Piece([1, -1, 1], [state[3][6], state[5][2], state[2][8]]))
 
         self.faces = self.get_faces()
+        self.state = self.pieces_to_cube_state()
+
+    def __str__(self):
+        for piece in self.pieces:
+            print(piece)
+        return
+
+    def pieces_to_cube_state(self):
+        state = [None] * 6
+        for face, value in self.faces.items():
+            colors = [None] * 9
+            pieces = value.get("Pieces")
+            axis = self.get_face_axis(face)
+            for p in pieces:
+                pos_in_face = tuple(x * y for x, y in zip(p.pos, face_axis[face]))
+                real_pos = pos_in_face[face_encoding[face][0]] + 1 + 3 * (pos_in_face[face_encoding[face][1]] + 1)
+                colors[real_pos] = p.color[axis]
+            assert all(color is not None for color in colors)
+            state[colors[4].value] = colors
+        return state
+
+    def get_face_axis(self, face):
+        if face == "R":
+            return 0
+        elif face == "L":
+            return 0
+        elif face == "U":
+            return 1
+        elif face == "D":
+            return 1
+        elif face == "F":
+            return 2
+        elif face == "B":
+            return 2
 
     def get_faces(self):
         faces = {"R": {"Pieces": [piece for piece in self.pieces if piece.pos[0] == 1], "cw": rot_yz_cw, "ccw": rot_yz_ccw},
@@ -148,10 +198,6 @@ class Cube:
                  "B": {"Pieces": [piece for piece in self.pieces if piece.pos[2] == -1], "cw": rot_xy_ccw, "ccw": rot_xy_cw}
                  }
         return faces
-
-    def print_cube(self):
-        for p in self.pieces:
-            p.print_piece()
 
     def rotate(self, face, dir):
         pieces = self.faces.get(face).get("Pieces")
@@ -168,7 +214,7 @@ class Cube:
         return rot_sum
 
 
-class App:
+class AppTest:
     def __init__(self, cube):
         self.cube = cube
 
@@ -206,6 +252,9 @@ class App:
         self.btn_f.pack()
         self.btn_b.pack()
 
+        self.button = Button(self.root, command=c.pieces_to_cube_state)
+        self.button.pack()
+
         self.root.mainloop()
 
     def rotate(self, face, dir):
@@ -236,5 +285,4 @@ class App:
 
 if __name__ == "__main__":
     c = Cube()
-    print(c.get_rotation_sum())
-    a = App(c)
+    a = AppTest(c)
