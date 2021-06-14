@@ -2,17 +2,9 @@ from tkinter import *
 import math
 from collections import namedtuple
 from enum import Enum
-from cube import Cube
-from colors import Color
-
-
-class Faces(Enum):
-    UP = "U"
-    DOWN = "D"
-    LEFT = "L"
-    RIGHT = "R"
-    FRONT = "F"
-    BACK = "B"
+from cube_test import Cube
+from constants import Color, Faces
+from solver import solve
 
 
 Rectangle = namedtuple('Rectangle', ['start', 'end'])
@@ -93,6 +85,9 @@ class App:
         self.draw_cube()
         self.moves_cv.pack()
         self.menu_btn.pack(anchor=SW)
+
+        b = Button(self.root, command=lambda: solve(self.cube_state))
+        b.pack()
 
     def draw_buttons(self):
         buttons = []
@@ -186,6 +181,7 @@ class App:
         return Rectangle(start, end)
 
     def state_reset(self):
+        self.cube = Cube()
         return [[color] * 9 for color in Color]
 
 

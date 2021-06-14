@@ -2,7 +2,7 @@ from tkinter import *
 import numpy as np
 
 
-from colors import Color
+from constants import Color
 
 
 rot_xy_cw = np.array([[0, 1, 0],
@@ -29,7 +29,7 @@ rot_yz_ccw = np.array([[1, 0, 0],
                        [0, 0, -1],
                        [0, 1, 0]])
 
-cube_state = [[color] * 9 for color in Color]
+
 """
               +---------+
               | 0  1  2 |
@@ -75,7 +75,7 @@ class Piece:
     }
 
     def __init__(self, pos, color):
-        self.pos = pos  # pos ist eine Liste mit Koordinaten (x, y, z)
+        self.pos = pos  # pos ist ein Tupel mit Koordinaten (x, y, z)
         self.color = color
         self.rotation = 0
 
@@ -87,6 +87,15 @@ class Piece:
         color_list = [self.colors.get(color) if color is not None else "None" for color in self.color]
         colors = "Colors:  X:" + color_list[0] + "  Y:" + color_list[1] + "  Z:" + color_list[2]
         return pos + "\n" + colors
+
+    def __hash__(self):
+        return hash(tuple(self.pos)) + hash(tuple(self.color)) + hash(self.rotation)
+
+    def __eq__(self, other):
+        if not isinstance(other, Piece):
+            return NotImplemented
+        return self.pos == other.pos and self.color == other.color
+
 
     def rotate(self, matrix):
         pos_mat = np.array([[self.pos[0]], [self.pos[1]], [self.pos[2]]])
@@ -154,7 +163,14 @@ class Cube:
                        Piece([1, -1, 1], [state[3][6], state[5][2], state[2][8]]))
 
         self.faces = self.get_faces()
-        self.state = self.pieces_to_cube_state()
+
+    def __hash__(self):
+        return hash(self.pieces)
+
+    def __eq__(self, other):
+        if not isinstance(other, Cube):
+            return NotImplemented
+        return self.pieces == other.pieces
 
     def __str__(self):
         for piece in self.pieces:
