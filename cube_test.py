@@ -66,7 +66,7 @@ class Piece:
         return str(self)
 
     def __hash__(self):
-        return hash(self.color) + hash(self.rotation)
+        return hash(self.color)
 
     def __eq__(self, other):
         if not isinstance(other, Piece):
@@ -110,7 +110,7 @@ class Cube:
                         (Piece(None, state[0][1], state[4][1]), Piece(None, state[0][4], None), Piece(None, state[0][7], state[2][1]))
                         ),
                        ((Piece(state[3][8], state[5][8], state[4][6]), Piece(state[3][7], state[5][5], None), Piece(state[3][6], state[5][2], state[2][8])),
-                        (Piece(state[3][5], None, state[4][3]), Piece(state[3][4], None, None), Piece(state[3][5], None, state[2][5])),
+                        (Piece(state[3][5], None, state[4][3]), Piece(state[3][4], None, None), Piece(state[3][3], None, state[2][5])),
                         (Piece(state[3][2], state[0][2], state[4][0]), Piece(state[3][1], state[0][5], None), Piece(state[3][0], state[0][8], state[2][2]))
                         )
                        )
@@ -129,6 +129,10 @@ class Cube:
         for piece in self.pieces:
             print(piece)
         return
+
+    def __copy__(self):
+        state = self.pieces_to_cube_state()
+        return Cube(state)
 
     def pieces_to_cube_state(self):
         state = [None] * 6

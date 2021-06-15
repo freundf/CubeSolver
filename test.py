@@ -1,38 +1,49 @@
-from copy import deepcopy
+from copy import copy
 from queue import Queue
-from tkinter import *
-from enum import Enum
+from constants import Faces, Color
+from cube_test import Cube
+from pieces import pieces_solved
 import profile
 
-from constants import Faces, Color
-from cube import Cube
-from solver import state_tuple, is_solved
-
+solved_cube = Cube()
 
 def solve(state):
-    visited = {state_tuple(state)}
+    cube = Cube(state)
+    visited = {cube}
     queue = Queue()
-    queue.put((state, []))
+    queue.put((cube, []))
+
     i = 0
-    while i <= 10:
-        state, path = queue.get()
-        cube = Cube(state)
-        if is_solved(cube):
-            print(path)
-            return
+
+    while i <= 100:
+        cube, path = queue.get()
+
         for face in Faces:
             for direction in ["cw", "ccw"]:
-                cube = Cube(deepcopy(state))
-                cube.rotate(face.value, direction)
-                new_state = cube.pieces_to_cube_state()
-                new_state_tuple = (state_tuple(new_state))
-                if new_state_tuple not in visited:
-                    queue.put((new_state, path + [(face, direction)]))
-                    visited.add(new_state_tuple)
+                new_cube = copy(cube)
+                new_cube.rotate(face.value, direction)
+
+                if is_solved(new_cube):
+                    solve_path = path + [(face, direction)]
+                    print(solve_path)
+                    return
+                if new_cube not in visited:
+                    queue.put((new_cube, path + [(face, direction)]))
+                    visited.add(new_cube)
         i += 1
 
 
+def is_solved(cube):
+    if solved_cube.faces["U"] == cube.faces["U"]:
+        return True
+    else:
+        return False
+
+
+def state_tuple(state):
+    return tuple(tuple(i) for i in state)
+
 state = [[color] * 9 for color in Color]
-state[0], state[3] = state[3], state[0]
+state[0][3] = state[2][1]
 
 profile.run("solve(state)")

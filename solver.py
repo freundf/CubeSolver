@@ -1,13 +1,15 @@
-from copy import deepcopy
+from copy import copy
 from queue import Queue
 from constants import Faces
 from cube_test import Cube
-from pieces import pieces_solved
 
 solved_cube = Cube()
 
+
 def solve(state):
     cube = Cube(state)
+    if is_solved(cube):
+        return []
     visited = {cube}
     queue = Queue()
     queue.put((cube, []))
@@ -17,29 +19,36 @@ def solve(state):
 
         for face in Faces:
             for direction in ["cw", "ccw"]:
-                new_cube = deepcopy(cube)
+                new_cube = copy(cube)
                 new_cube.rotate(face.value, direction)
 
                 if is_solved(new_cube):
                     solve_path = path + [(face, direction)]
                     print(solve_path)
-                    return
+                    return path_to_string(solve_path)
                 if new_cube not in visited:
                     queue.put((new_cube, path + [(face, direction)]))
                     visited.add(new_cube)
 
 
 def is_solved(cube):
-    if solved_cube.faces["U"] == cube.faces["U"]:
+    if solved_cube.faces["U"][1::2] == cube.faces["U"][1::2]:
         return True
     else:
         return False
 
 
-def state_tuple(state):
-    return tuple(tuple(i) for i in state)
+def path_to_string(path):
+    moves = [move[0].value if move[1] == "cw" else (move[0].value + "'") for move in path]
+    delete = []
+    for i, move in enumerate(moves[:-1]):
+        if moves[i + 1] == move:
+            moves[i] = move + "2"
+            delete.append(i + 1)
 
+    for i, v in enumerate(delete):
+        moves.pop(v - i)
 
-
-
-
+    string = ', '.join(moves)
+    print(string)
+    return string

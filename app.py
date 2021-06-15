@@ -3,7 +3,7 @@ import math
 from collections import namedtuple
 from enum import Enum
 from cube_test import Cube
-from constants import Color, Faces
+from constants import Color, Faces, moves
 from solver import solve
 
 
@@ -50,6 +50,14 @@ class App:
         self.moves_cv = Canvas(self.root)
         self.moves = self.draw_moves()
 
+        self.scramble_input = Text(self.root, height=1, width=20, fg="white", font=("Helvetica", "20", "bold"))
+        self.scramble_btn = Button(self.root, text="Set Scramble", command=self.set_scramble)
+
+        self.solve_btn = Button(self.root, text="Find a Solution!", command=self.solve)
+
+        self.solve_moves = StringVar()
+        self.solution_cross = Label(self.root, textvariable=self.solve_moves, font=("Helvetica", "20", "bold"), fg="white")
+
         self.draw_menu()
 
     def run(self):
@@ -60,6 +68,10 @@ class App:
         self.btn_cv.pack_forget()
         self.menu_btn.pack_forget()
         self.moves_cv.pack_forget()
+        self.scramble_input.pack_forget()
+        self.scramble_btn.pack_forget()
+        self.solve_btn.pack_forget()
+        self.solution_cross.pack_forget()
 
         self.menu.pack()
         self.slv_btn.pack()
@@ -69,10 +81,13 @@ class App:
         self.menu.pack_forget()
         self.cube_fr.pack_forget()
         self.menu_btn.pack_forget()
-
         self.cube_state = self.state_reset()
+
         self.draw_cube()
         self.btn_cv.pack()
+        self.scramble_input.pack()
+        self.scramble_btn.pack()
+        self.solve_btn.pack()
         self.menu_btn.pack(anchor=SW)
 
     def draw_simulation(self):
@@ -85,9 +100,19 @@ class App:
         self.draw_cube()
         self.moves_cv.pack()
         self.menu_btn.pack(anchor=SW)
+        self.solve_btn.pack()
 
-        b = Button(self.root, command=lambda: solve(self.cube_state))
-        b.pack()
+    def draw_solution(self, solution):
+        self.cube_fr.pack_forget()
+        self.btn_cv.pack_forget()
+        self.moves_cv.pack_forget()
+        self.scramble_input.pack_forget()
+        self.scramble_btn.pack_forget()
+        self.solve_btn.pack_forget()
+
+        self.solve_moves.set(solution)
+        self.solution_cross.pack()
+
 
     def draw_buttons(self):
         buttons = []
@@ -112,6 +137,26 @@ class App:
         self.cube.rotate(face, direction)
         self.cube_state = self.cube.pieces_to_cube_state()
         self.draw_cube()
+
+    def solve(self):
+        solution = solve(self.cube_state)
+        self.draw_solution(solution)
+
+    def set_scramble(self):
+        self.state_reset()
+        scramble = self.scramble_input.get(1.0, "end-1c")
+        for i,  move in enumerate(scramble):
+            if move == "2":
+                scramble[i] = scramble[i - 1]
+        scramble = scramble.upper().split(" ")
+
+        if all(move not in moves for move in scramble):
+            self.scramble_input.delete(1.0, "end")
+            self.scramble_input.insert(1.0, "False Scramble")
+        scramble = [moves[move] for move in scramble]
+
+        for face, direction in scramble:
+            self.rotate(face, direction)
 
     def set_color(self, color):
         self.color = color
