@@ -1,4 +1,3 @@
-import numpy as np
 from constants import Color, rotations, inverse_rotations, face_to_cubestate
 
 

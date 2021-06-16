@@ -8,7 +8,7 @@ solved_cube = Cube()
 
 def solve(state):
     cube = Cube(state)
-    if is_solved(cube):
+    if is_solved_f2l(cube):
         return []
     visited = {cube}
     queue = Queue()
@@ -22,7 +22,7 @@ def solve(state):
                 new_cube = copy(cube)
                 new_cube.rotate(face.value, direction)
 
-                if is_solved(new_cube):
+                if is_solved_f2l(new_cube):
                     solve_path = path + [(face, direction)]
                     print(solve_path)
                     return path_to_string(solve_path)
@@ -31,8 +31,15 @@ def solve(state):
                     visited.add(new_cube)
 
 
-def is_solved(cube):
+def is_solved_cross(cube):
     if solved_cube.faces["U"][1::2] == cube.faces["U"][1::2]:
+        return True
+    else:
+        return False
+
+
+def is_solved_f2l(cube):
+    if solved_cube.faces["F"][0:2] == cube.faces["F"][0:2]:
         return True
     else:
         return False

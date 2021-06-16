@@ -28,31 +28,45 @@ class App:
             self.cube_state = self.state_reset()
         else:
             self.cube_state = state
+
+        # Creates the root window
         self.root = Tk()
+        self.root.geometry("500x700")
         self.root.configure(background="lightgray")
+
+        # Creates the clickable cube display
         self.cube = Cube()
         self.cube_fr = Frame(self.root)
-
         self.cube_cv = Canvas(self.cube_fr, width=400, height=300)
         self.cube_cv.bind("<Button-1>", self.on_click)
         self.cube_cv.pack()
 
-        self.menu = Frame(self.root)
-        self.sim_btn = Button(self.menu, text="Simulation", command=self.draw_simulation)
-        self.slv_btn = Button(self.menu, text="Solver", command=self.draw_solver)
+        # Creates the main menu
+        self.menu = Frame(self.root, bg="lightgray")
+        self.header = Label(self.menu, text="Cube Solver", font=("Helvetica", "50", "bold"),  bg="lightgray", pady=50)
+        self.sim_btn = Button(self.menu, height=2, width=15, text="Simulation", font=("Helvetica", "20", "bold"), command=self.draw_simulation)
+        self.slv_btn = Button(self.menu, height=2, width=15, text="Solver", font=("Helvetica", "20", "bold"), command=self.draw_solver)
+        self.header.pack()
+        self.slv_btn.pack()
+        self.sim_btn.pack()
 
+        # Creates the back and exit button
         self.menu_btn = Button(self.root, padx=30, pady=10, text="Back", command=self.draw_menu)
+        self.exit_btn = Button(self.menu, height=2, width=15, text="Exit", font=("Helvetica", "15", "bold"), command=self.root.destroy)
+        self.exit_btn.pack(side=BOTTOM, pady=150)
 
+        # Creates the buttons to change color
         self.btn_cv = Canvas(self.root)
         self.color = None
         self.buttons = self.draw_buttons()
 
+        # Creates the buttons to turn the cube
         self.moves_cv = Canvas(self.root)
         self.moves = self.draw_moves()
 
+        # Creates the scramble input
         self.scramble_input = Text(self.root, height=1, width=20, fg="white", font=("Helvetica", "20", "bold"))
         self.scramble_btn = Button(self.root, text="Set Scramble", command=self.set_scramble)
-
         self.solve_btn = Button(self.root, text="Find a Solution!", command=self.solve)
 
         self.solve_moves = StringVar()
@@ -64,24 +78,12 @@ class App:
         self.root.mainloop()
 
     def draw_menu(self):
-        self.cube_fr.pack_forget()
-        self.btn_cv.pack_forget()
-        self.menu_btn.pack_forget()
-        self.moves_cv.pack_forget()
-        self.scramble_input.pack_forget()
-        self.scramble_btn.pack_forget()
-        self.solve_btn.pack_forget()
-        self.solution_cross.pack_forget()
+        self.forget_widgets()
 
         self.menu.pack()
-        self.slv_btn.pack()
-        self.sim_btn.pack()
 
     def draw_solver(self):
-        self.menu.pack_forget()
-        self.cube_fr.pack_forget()
-        self.menu_btn.pack_forget()
-        self.cube_state = self.state_reset()
+        self.forget_widgets()
 
         self.draw_cube()
         self.btn_cv.pack()
@@ -91,27 +93,26 @@ class App:
         self.menu_btn.pack(anchor=SW)
 
     def draw_simulation(self):
-        self.menu.pack_forget()
-        self.menu_btn.pack_forget()
-        self.cube_fr.forget()
-        self.moves_cv.pack_forget()
+        self.forget_widgets()
 
         self.cube_state = self.state_reset()
         self.draw_cube()
         self.moves_cv.pack()
-        self.menu_btn.pack(anchor=SW)
         self.solve_btn.pack()
+        self.menu_btn.pack(anchor=SW)
+
 
     def draw_solution(self, solution):
-        self.cube_fr.pack_forget()
-        self.btn_cv.pack_forget()
-        self.moves_cv.pack_forget()
-        self.scramble_input.pack_forget()
-        self.scramble_btn.pack_forget()
-        self.solve_btn.pack_forget()
+        self.forget_widgets()
 
         self.solve_moves.set(solution)
         self.solution_cross.pack()
+        self.menu_btn.pack(anchor=SW)
+
+    # Unload all loaded widgets
+    def forget_widgets(self):
+        for widget in self.root.winfo_children():
+            widget.pack_forget()
 
 
     def draw_buttons(self):
