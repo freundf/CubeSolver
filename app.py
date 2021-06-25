@@ -1,10 +1,9 @@
 from tkinter import *
 import math
 from collections import namedtuple
-from enum import Enum
-from cube_test import Cube
+from cube import Cube
 from constants import Color, Faces, moves
-from solver import solve
+from solver import solve, solvable, solve_advanced
 
 
 Rectangle = namedtuple('Rectangle', ['start', 'end'])
@@ -70,7 +69,9 @@ class App:
         self.solve_btn = Button(self.root, text="Find a Solution!", command=self.solve)
 
         self.solve_moves = StringVar()
-        self.solution_cross = Label(self.root, textvariable=self.solve_moves, font=("Helvetica", "20", "bold"), fg="white")
+        self.solution_cross = Label(self.root, textvariable=self.solve_moves, pady=20, font=("Helvetica", "20", "bold"), fg="white")
+
+        self.error = Label(self.cube_fr, text="Your cube is not solvable!", font=("Helvetica", "20", "bold"), fg="white")
 
         self.draw_menu()
 
@@ -85,12 +86,13 @@ class App:
     def draw_solver(self):
         self.forget_widgets()
 
+        self.cube_state = self.state_reset()
         self.draw_cube()
         self.btn_cv.pack()
         self.scramble_input.pack()
         self.scramble_btn.pack()
         self.solve_btn.pack()
-        self.menu_btn.pack(anchor=SW)
+        self.menu_btn.pack(side=BOTTOM, fill=BOTH)
 
     def draw_simulation(self):
         self.forget_widgets()
@@ -98,9 +100,7 @@ class App:
         self.cube_state = self.state_reset()
         self.draw_cube()
         self.moves_cv.pack()
-        self.solve_btn.pack()
         self.menu_btn.pack(anchor=SW)
-
 
     def draw_solution(self, solution):
         self.forget_widgets()
@@ -113,7 +113,7 @@ class App:
     def forget_widgets(self):
         for widget in self.root.winfo_children():
             widget.pack_forget()
-
+        self.error.pack_forget()
 
     def draw_buttons(self):
         buttons = []
@@ -140,20 +140,33 @@ class App:
         self.draw_cube()
 
     def solve(self):
-        solution = solve(self.cube_state)
-        self.draw_solution(solution)
+        if solvable(self.cube_state):
+            solution = solve_advanced(self.cube_state)
+            self.draw_solution(solution)
+            self.error.pack_forget()
+        else:
+            self.error.pack_forget()
+            self.error.pack()
 
     def set_scramble(self):
         self.state_reset()
         scramble = self.scramble_input.get(1.0, "end-1c")
-        for i,  move in enumerate(scramble):
-            if move == "2":
-                scramble[i] = scramble[i - 1]
-        scramble = scramble.upper().split(" ")
+        scramble = list(scramble.upper().replace(" ", ""))
 
-        if all(move not in moves for move in scramble):
+        delete = []
+        for i,  move in enumerate(scramble):
+            if move == "2" and i != 0:
+                scramble[i] = scramble[i - 1]
+            if move == "'" and i != 0:
+                scramble[i - 1] += "'"
+                delete.append(i)
+        for i, v in enumerate(delete):
+            scramble.pop(v - i)
+
+        if not all(move in moves for move in scramble):
             self.scramble_input.delete(1.0, "end")
             self.scramble_input.insert(1.0, "False Scramble")
+            return
         scramble = [moves[move] for move in scramble]
 
         for face, direction in scramble:

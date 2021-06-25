@@ -1,8 +1,17 @@
+from sympy.combinatorics.permutations import Permutation
+
+a = Permutation([[0, 1, 2, 3], [4, 5, 6]])
+print(a.is_even)
+
+
+
+
+"""
 from copy import copy
 from queue import Queue
 from constants import Faces, Color
-from cube_test import Cube
-from pieces import pieces_solved
+from cube import Cube
+
 import profile
 
 solved_cube = Cube()
@@ -47,3 +56,4 @@ state = [[color] * 9 for color in Color]
 state[0][3] = state[2][1]
 
 profile.run("solve(state)")
+"""
