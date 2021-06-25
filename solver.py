@@ -26,7 +26,7 @@ def cubestate_to_cubestring(state):
 
 def solve_advanced(state):
     cube_string = cubestate_to_cubestring(state)
-    path = kociemba_solve(cube_string, 18, 2)
+    path = kociemba_solve(cube_string, 20, 2)
     path = path.replace("3", "'").replace("1", "")
     path_list = path.split(" ")
     path_list.pop()
