@@ -85,6 +85,7 @@ def path_to_string(path):
 def solvable(state):
     cube = Cube(state)
 
+    # Check if the cube contains the right pieces
     # Convert all piece colors to frozenset, so that rotations won't matter
     cube_set = set()
     solved_set = set()
@@ -94,10 +95,70 @@ def solvable(state):
                 # frozenset is required because it is hashable
                 cube_set.add(frozenset(cube.pieces[x][y][z].color))
                 solved_set.add(frozenset(solved_cube.pieces[x][y][z].color))
+    if cube_set != solved_set:
+        return False
 
+    # Check the cube for permutation parity
+    corner_perm = get_corner_permutation(cube)
+    edge_perm = get_edge_permutation(cube)
+    if permutation_is_even(corner_perm) != permutation_is_even(edge_perm):
+        return False
+
+    # Check for orientation parity
     rotations = cube.get_rotation_sum()
-    if cube_set == solved_set and rotations[0] % 2 == 0 and rotations[1] % 3 == 0:
+    if rotations[0] % 2 != 0 or rotations[1] % 3 != 0:
+        return False
+
+    return True
+
+
+def get_corner_permutation(cube):
+    corners = cube.get_corners()
+    solved = solved_cube.get_corners()
+    cycles = get_cycles(corners, solved)
+    return cycles
+
+
+def get_edge_permutation(cube):
+    edges = cube.get_edges()
+    solved = solved_cube.get_edges()
+    cycles = get_cycles(edges, solved)
+    return cycles
+
+
+def get_cycles(pieces, solved):
+    for i in range(len(pieces)):
+        pieces[i] = frozenset(pieces[i].color)
+    for i in range(len(solved)):
+        solved[i] = frozenset(solved[i].color)
+
+    cycles = [[]]
+    visited = []
+    i = 0
+    next_index = 0
+
+    while set(visited) != set(pieces):
+        if pieces[i] not in visited:
+            visited.append(pieces[i])
+            for j, solved_piece in enumerate(solved):
+                if pieces[i] == solved_piece:
+                    if i not in cycles[-1]:
+                        cycles[-1].append(i)
+                    next_index = j
+            i = next_index
+        else:
+            cycles.append([])
+            not_visited = [piece for piece in pieces if piece not in visited]
+            if len(not_visited) != 0:
+                i = pieces.index(not_visited[0])
+
+    return cycles
+
+
+def permutation_is_even(cycles):
+    # a permutation is even if the number of cycles with even length is even
+    even_cycles = [cyc for cyc in cycles if len(cyc) % 2 == 0]
+    if len(even_cycles) % 2 == 0:
         return True
     else:
         return False
-

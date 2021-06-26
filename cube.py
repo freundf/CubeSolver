@@ -186,6 +186,22 @@ class Cube:
         elif face == "B":
             return 2
 
+    def get_edges(self):
+        edges = [self.pieces[x][y][z]
+                 for x in range(3)
+                 for y in range(3)
+                 for z in range(3)
+                 if sum(color is None for color in self.pieces[x][y][z].color) == 1]
+        return edges
+
+    def get_corners(self):
+        corners = [self.pieces[x][y][z]
+                   for x in range(3)
+                   for y in range(3)
+                   for z in range(3)
+                   if None not in self.pieces[x][y][z].color]
+        return corners
+
     def get_faces(self):
         faces = {"R": [], "L": [], "U": [], "D": [], "F": [], "B": []}
         for x in range(3):
@@ -203,7 +219,6 @@ class Cube:
                         faces["B"].append(self.pieces[x][y][z])
                     elif z == 2:
                         faces["F"].append(self.pieces[x][y][z])
-
         return faces
 
     def rotate(self, face, direction):
@@ -236,7 +251,3 @@ class Cube:
                       for z in range(3)
                       if None not in self.pieces[x][y][z].color)
         return edges, corners
-
-if __name__ == "__main__":
-    c = Cube()
-    print(c.get_rotation_sum())
