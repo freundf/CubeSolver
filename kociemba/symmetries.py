@@ -1,6 +1,7 @@
 # #################### Symmetry related functions. Symmetry considerations increase the performance of the solver.######
 
 from os import path
+from pathlib import Path
 import numpy as np
 import array as ar
 from . import cubie as cb
@@ -9,6 +10,11 @@ from .defs import N_TWIST, N_SYM, N_SYM_D4h, N_FLIP, N_SLICE, N_CORNERS, N_UD_ED
 from .enums import Corner as Co, Edge as Ed, Move as Mv, BS
 
 INVALID = 65535
+
+folder_name = Path("precalc")
+if not folder_name.is_dir():
+    folder_name.mkdir()
+
 
 #  #################### Permutations and orientation changes of the basic symmetries ###################################
 
@@ -99,11 +105,11 @@ for s in range(N_SYM):
 ########################################################################################################################
 
 # ###### Generate the phase 1 table for the conjugation of the twist t by a symmetry s. twist_conj[t, s] = s*t*s^-1 ####
-fname = "conj_twist"
-if not path.isfile(fname):
+fname = folder_name / "conj_twist"
+if not fname.is_file():
     print('On the first run, several tables will be created. This takes from 1/2 hour (e.g. PC) to 6 hours '
           '(e.g. RaspberryPi3), depending on the hardware.')
-    print("creating " + fname + " table...")
+    print("creating " + str(fname) + " table...")
     twist_conj = ar.array('H', [0] * (N_TWIST * N_SYM_D4h))
     for t in range(N_TWIST):
         cc = cb.CubieCube()
@@ -113,11 +119,11 @@ if not path.isfile(fname):
             ss.corner_multiply(cc)  # s*t
             ss.corner_multiply(symCube[inv_idx[s]])  # s*t*s^-1
             twist_conj[N_SYM_D4h * t + s] = ss.get_twist()
-    fh = open(fname, "wb")
+    fh = fname.open("wb")
     twist_conj.tofile(fh)
 else:
-    print("loading " + fname + " table...")
-    fh = open(fname, 'rb')
+    print("loading " + str(fname) + " table...")
+    fh = fname.open('rb')
     twist_conj = ar.array('H')
     twist_conj.fromfile(fh, N_TWIST * N_SYM_D4h)
 
@@ -125,9 +131,9 @@ fh.close()
 # ######################################################################################################################
 
 # #################### Generate the phase 2 table for the conjugation of the URtoDB coordinate by a symmetrie ##########
-fname = "conj_ud_edges"
-if not path.isfile(fname):
-    print("creating " + fname + " table...")
+fname = folder_name / "conj_ud_edges"
+if not fname.is_file():
+    print("creating " + str(fname) + " table...")
     ud_edges_conj = ar.array('H', [0] * (N_UD_EDGES * N_SYM_D4h))
     for t in range(N_UD_EDGES):
         if (t + 1) % 400 == 0:
@@ -142,21 +148,21 @@ if not path.isfile(fname):
             ss.edge_multiply(symCube[inv_idx[s]])  # s*t*s^-1
             ud_edges_conj[N_SYM_D4h * t + s] = ss.get_ud_edges()
     print('')
-    fh = open(fname, "wb")
+    fh = fname.open("wb")
     ud_edges_conj.tofile(fh)
 else:
-    print("loading " + fname + " table...")
-    fh = open(fname, "rb")
+    print("loading " + str(fname) + " table...")
+    fh = fname.open("rb")
     ud_edges_conj = ar.array('H')
     ud_edges_conj.fromfile(fh, N_UD_EDGES * N_SYM_D4h)
 fh.close()
 # ######################################################################################################################
 
 # ############## Generate the tables to handle the symmetry reduced flip-slice coordinate in  phase 1 ##################
-fname1 = "fs_classidx"
-fname2 = "fs_sym"
-fname3 = "fs_rep"
-if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
+fname1 = folder_name / "fs_classidx"
+fname2 = folder_name / "fs_sym"
+fname3 = folder_name / "fs_rep"
+if not (fname1.is_file() and fname2.is_file() and fname3.is_file()):
     print("creating " + "flipslice sym-tables...")
     flipslice_classidx = ar.array('H', [INVALID] * (N_FLIP * N_SLICE))  # idx -> classidx
     flipslice_sym = ar.array('B', [0] * (N_FLIP * N_SLICE))  # idx -> symmetry
@@ -191,38 +197,38 @@ if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
                     flipslice_sym[idx_new] = s
             classidx += 1
     print('')
-    fh = open(fname1, 'wb')
+    fh = fname1.open('wb')
     flipslice_classidx.tofile(fh)
     fh.close()
-    fh = open(fname2, 'wb')
+    fh = fname2.open('wb')
     flipslice_sym.tofile(fh)
     fh.close()
-    fh = open(fname3, 'wb')
+    fh = fname3.open('wb')
     flipslice_rep.tofile(fh)
     fh.close()
 
 else:
     print("loading " + "flipslice sym-tables...")
 
-    fh = open(fname1, 'rb')
+    fh = fname1.open('rb')
     flipslice_classidx = ar.array('H')
     flipslice_classidx.fromfile(fh, N_FLIP * N_SLICE)
     fh.close()
-    fh = open(fname2, 'rb')
+    fh = fname2.open('rb')
     flipslice_sym = ar.array('B')
     flipslice_sym.fromfile(fh, N_FLIP * N_SLICE)
     fh.close()
-    fh = open(fname3, 'rb')
+    fh = fname3.open('rb')
     flipslice_rep = ar.array('L')
     flipslice_rep.fromfile(fh, N_FLIPSLICE_CLASS)
     fh.close()
 ########################################################################################################################
 
 # ############ Generate the tables to handle the symmetry reduced corner permutation coordinate in phase 2 #############
-fname1 = "co_classidx"
-fname2 = "co_sym"
-fname3 = "co_rep"
-if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
+fname1 = folder_name / "co_classidx"
+fname2 = folder_name / "co_sym"
+fname3 = folder_name / "co_rep"
+if not (fname1.is_file() and fname2.is_file() and fname3.is_file()):
     print("creating " + "corner sym-tables...")
     corner_classidx = ar.array('H', [INVALID] * N_CORNERS)  # idx -> classidx
     corner_sym = ar.array('B', [0] * N_CORNERS)  # idx -> symmetry
@@ -252,28 +258,28 @@ if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
                 corner_sym[cp_new] = s
         classidx += 1
     print('')
-    fh = open(fname1, 'wb')
+    fh = fname1.open('wb')
     corner_classidx.tofile(fh)
     fh.close()
-    fh = open(fname2, 'wb')
+    fh = fname2.open('wb')
     corner_sym.tofile(fh)
     fh.close()
-    fh = open(fname3, 'wb')
+    fh = fname3.open('wb')
     corner_rep.tofile(fh)
     fh.close()
 
 else:
     print("loading " + "corner sym-tables...")
 
-    fh = open(fname1, 'rb')
+    fh = fname1.open('rb')
     corner_classidx = ar.array('H')
     corner_classidx.fromfile(fh,N_CORNERS)
     fh.close()
-    fh = open(fname2, 'rb')
+    fh = fname2.open('rb')
     corner_sym = ar.array('B')
     corner_sym.fromfile(fh, N_CORNERS)
     fh.close()
-    fh = open(fname3, 'rb')
+    fh = fname3.open('rb')
     corner_rep = ar.array('H')
     corner_rep.fromfile(fh, N_CORNERS_CLASS)
     fh.close()

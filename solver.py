@@ -151,7 +151,6 @@ def get_cycles(pieces, solved):
             not_visited = [piece for piece in pieces if piece not in visited]
             if len(not_visited) != 0:
                 i = pieces.index(not_visited[0])
-
     return cycles
 
 

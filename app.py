@@ -4,7 +4,7 @@ from collections import namedtuple
 from cube import Cube
 from constants import Color, Faces, moves
 from solver import solve, solvable, solve_advanced
-
+import random
 
 Rectangle = namedtuple('Rectangle', ['start', 'end'])
 Point = namedtuple('Point', ['x', 'y'])
@@ -63,13 +63,16 @@ class App:
         self.moves_cv = Canvas(self.root)
         self.moves = self.draw_moves()
 
+        # Create the random Scramble Button
+        self.scramble_rnd = Button(self.root, text="Scramble", command=self.random_scramble)
+
         # Creates the scramble input
         self.scramble_input = Text(self.root, height=1, width=20, fg="white", font=("Helvetica", "20", "bold"))
         self.scramble_btn = Button(self.root, text="Set Scramble", command=self.set_scramble)
         self.solve_btn = Button(self.root, text="Find a Solution!", command=self.solve)
 
         self.solve_moves = StringVar()
-        self.solution_cross = Label(self.root, textvariable=self.solve_moves, pady=20, font=("Helvetica", "20", "bold"), fg="white")
+        self.solution = Label(self.root, width=30, height=5, wraplength=300, textvariable=self.solve_moves, pady=20, font=("Helvetica", "20", "bold"), fg="white")
 
         self.error = Label(self.cube_fr, text="Your cube is not solvable!", font=("Helvetica", "20", "bold"), fg="white")
 
@@ -98,6 +101,7 @@ class App:
         self.forget_widgets()
 
         self.cube_state = self.state_reset()
+        self.scramble_rnd.pack()
         self.draw_cube()
         self.moves_cv.pack()
         self.menu_btn.pack(anchor=SW)
@@ -106,7 +110,7 @@ class App:
         self.forget_widgets()
 
         self.solve_moves.set(solution)
-        self.solution_cross.pack()
+        self.solution.pack()
         self.menu_btn.pack(anchor=SW)
 
     # Unload all loaded widgets
@@ -169,6 +173,11 @@ class App:
             return
         scramble = [moves[move] for move in scramble]
 
+        for face, direction in scramble:
+            self.rotate(face, direction)
+
+    def random_scramble(self):
+        scramble = [random.choice(list(moves.values())) for _ in range(20)]
         for face, direction in scramble:
             self.rotate(face, direction)
 

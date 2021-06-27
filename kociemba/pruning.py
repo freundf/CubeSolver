@@ -1,19 +1,20 @@
 # ##################### The pruning tables cut the search tree during the search. ######################################
 # ##################### The pruning values are stored modulo 3 which saves a lot of memory. ############################
-
-from . import defs
+from pathlib import Path
+from . import defs, moves as mv
 from . import enums
-from . import moves as mv
 from . import symmetries as sy
 from . import cubie as cb
-from os import path
-import time
 import array as ar
 
-flipslice_twist_depth3 = None  # global variables, initialized during pruning table cration
+flipslice_twist_depth3 = None  # global variables, initialized during pruning table creation
 corners_ud_edges_depth3 = None
 cornslice_depth = None
 edgeslice_depth = None
+
+folder_name = Path("precalc")
+if not folder_name.is_dir():
+    folder_name.mkdir()
 
 # ####################### functions to extract or set values in the pruning tables #####################################
 
@@ -52,9 +53,9 @@ def create_phase1_prun_table():
     """Create/load the flipslice_twist_depth3 pruning table for phase 1."""
     global flipslice_twist_depth3
     total = defs.N_FLIPSLICE_CLASS * defs.N_TWIST
-    fname = "phase1_prun"
-    if not path.isfile(fname):
-        print("creating " + fname + " table...")
+    fname = folder_name / "phase1_prun"
+    if not fname.is_file():
+        print("creating " + str(fname) + " table...")
         print('This may take half an hour or even longer, depending on the hardware.')
 
         flipslice_twist_depth3 = ar.array('L', [0xffffffff] * (total // 16 + 1))
@@ -161,11 +162,11 @@ def create_phase1_prun_table():
             print()
             print('depth:', depth, 'done: ' + str(done) + '/' + str(total))
 
-        fh = open(fname, "wb")
+        fh = fname.open("wb")
         flipslice_twist_depth3.tofile(fh)
     else:
-        print("loading " + fname + " table...")
-        fh = open(fname, "rb")
+        print("loading " + str(fname) + " table...")
+        fh = fname.open("rb")
         flipslice_twist_depth3 = ar.array('L')
         flipslice_twist_depth3.fromfile(fh, total // 16 + 1)
     fh.close()
@@ -174,10 +175,10 @@ def create_phase1_prun_table():
 def create_phase2_prun_table():
     """Create/load the corners_ud_edges_depth3 pruning table for phase 2."""
     total = defs.N_CORNERS_CLASS * defs.N_UD_EDGES
-    fname = "phase2_prun"
+    fname = folder_name / "phase2_prun"
     global corners_ud_edges_depth3
-    if not path.isfile(fname):
-        print("creating " + fname + " table...")
+    if not fname.is_file():
+        print("creating " + str(fname) + " table...")
 
         corners_ud_edges_depth3 = ar.array('L', [0xffffffff] * (total // 16))
         # ##################### create table with the symmetries of the corners classes ################################
@@ -263,11 +264,11 @@ def create_phase2_prun_table():
             print('depth:', depth, 'done: ' + str(done) + '/' + str(total))
 
         print('remaining unfilled entries have depth >=11')
-        fh = open(fname, "wb")
+        fh = fname.open("wb")
         corners_ud_edges_depth3.tofile(fh)
     else:
-        print("loading " + fname + " table...")
-        fh = open(fname, "rb")
+        print("loading " + str(fname) + " table...")
+        fh = fname.open("rb")
         corners_ud_edges_depth3 = ar.array('L')
         corners_ud_edges_depth3.fromfile(fh, total // 16)
 
@@ -277,10 +278,10 @@ def create_phase2_prun_table():
 def create_phase2_cornsliceprun_table():
     """Create/load the cornslice_depth pruning table for phase 2. With this table we do a fast precheck
     at the beginning of phase 2."""
-    fname = "phase2_cornsliceprun"
+    fname = folder_name / "phase2_cornsliceprun"
     global cornslice_depth
-    if not path.isfile(fname):
-        print("creating " + fname + " table...")
+    if not fname.is_file():
+        print("creating " + str(fname) + " table...")
         cornslice_depth = ar.array('b', [-1] * (defs.N_CORNERS * defs.N_PERM_4))
         corners = 0  # values for solved phase 2
         slice_ = 0
@@ -305,11 +306,11 @@ def create_phase2_cornsliceprun_table():
 
             depth += 1
         print()
-        fh = open(fname, "wb")
+        fh = fname.open("wb")
         cornslice_depth.tofile(fh)
     else:
-        print("loading " + fname + " table...")
-        fh = open(fname, "rb")
+        print("loading " + str(fname) + " table...")
+        fh = fname.open("rb")
         cornslice_depth = ar.array('b')
         cornslice_depth.fromfile(fh, defs.N_CORNERS * defs.N_PERM_4)
     fh.close()
