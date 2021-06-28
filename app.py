@@ -24,6 +24,8 @@ class App:
     font_lg = ("Helvetica", "50", "bold")
     font_md = ("Helvetica", "20", "bold")
     font_sm = ("Helvetica", "15", "bold")
+    font_color = "#728b94"
+    bg_color = "#002b36"
 
     def __init__(self, state=None):
         if state is None:
@@ -39,30 +41,30 @@ class App:
         # Create the clickable cube display
         self.cube = Cube()
         self.cube_fr = Frame(self.root)
-        self.cube_cv = Canvas(self.cube_fr, width=400, height=300)
+        self.cube_cv = Canvas(self.cube_fr, width=400, height=300, bg=self.bg_color)
         self.cube_cv.bind("<Button-1>", self.on_click)
         self.cube_cv.pack()
 
         # Create the main menu
         self.menu = Frame(self.root, bg="lightgray")
-        self.header = Label(self.menu, text="Cube Solver", font=self.font_lg,  bg="lightgray", pady=50)
-        self.sim_btn = Button(self.menu, height=2, width=15, text="Simulation", font=self.font_md, command=self.draw_simulation)
-        self.slv_btn = Button(self.menu, height=2, width=15, text="Solver", font=self.font_md, command=self.draw_solver)
+        self.header = Label(self.menu, text="Cube Solver", font=self.font_lg, fg=self.font_color, bg="lightgray", pady=50)
+        self.sim_btn = Button(self.menu, bg=self.bg_color, fg=self.font_color, height=2, width=15, text="Simulation", font=self.font_md, command=self.draw_simulation)
+        self.slv_btn = Button(self.menu, bg=self.bg_color, fg=self.font_color, height=2, width=15, text="Solver", font=self.font_md, command=self.draw_solver)
         self.header.pack()
         self.slv_btn.pack()
         self.sim_btn.pack()
 
         # Create the headers
-        self.slv_header = Label(self.root, text="Solver", font=self.font_lg,  bg="lightgray", pady=10)
-        self.sim_header = Label(self.root, text="Simulation", font=self.font_lg,  bg="lightgray", pady=10)
+        self.slv_header = Label(self.root, text="Solver", font=self.font_lg, fg=self.font_color, bg="lightgray", pady=10)
+        self.sim_header = Label(self.root, text="Simulation", font=self.font_lg, fg=self.font_color, bg="lightgray", pady=10)
 
         # Create the back and exit button
-        self.menu_btn = Button(self.root, padx=30, pady=10, text="Back", command=self.draw_menu)
-        self.exit_btn = Button(self.menu, height=2, width=15, text="Exit", font=self.font_sm, command=self.root.destroy)
+        self.menu_btn = Button(self.root, padx=30, pady=10, bg=self.bg_color, fg=self.font_color, text="Back", command=self.draw_menu)
+        self.exit_btn = Button(self.menu, height=2, width=15, text="Exit", bg=self.bg_color, fg=self.font_color, font=self.font_sm, command=self.root.destroy)
         self.exit_btn.pack(side=BOTTOM, pady=150)
 
         # Create the buttons to change color
-        self.btn_cv = Canvas(self.root)
+        self.btn_cv = Canvas(self.root, bg=self.bg_color)
         self.color = None
         self.buttons = self.draw_buttons()
 
@@ -71,17 +73,17 @@ class App:
         self.draw_moves()
 
         # Create the random Scramble Button
-        self.scramble_rnd = Button(self.root, text="Scramble", command=self.random_scramble, font=self.font_sm)
+        self.scramble_rnd = Button(self.root, text="Scramble", bg=self.bg_color, fg=self.font_color, command=self.random_scramble, font=self.font_sm)
 
         # Create the scramble input
-        self.scramble_input = Text(self.root, height=1, width=20, fg="white", font=self.font_md)
-        self.scramble_btn = Button(self.root, width=15, text="Set Scramble", command=self.set_scramble, font=self.font_sm)
-        self.solve_btn = Button(self.root, width=15, text="Find a Solution!", command=self.solve, font=self.font_sm)
+        self.scramble_input = Text(self.root, height=1, width=20, bg=self.bg_color, fg=self.font_color, font=self.font_md)
+        self.scramble_btn = Button(self.root, width=15, bg=self.bg_color, fg=self.font_color, text="Set Scramble", command=self.set_scramble, font=self.font_sm)
+        self.solve_btn = Button(self.root, width=15, bg=self.bg_color, fg=self.font_color, text="Find a Solution!", command=self.solve, font=self.font_sm)
 
         self.solve_moves = StringVar()
-        self.solution = Label(self.root, width=30, height=5, wraplength=300, textvariable=self.solve_moves, pady=20, font=self.font_md, fg="white")
+        self.solution = Label(self.root, width=30, height=5, wraplength=300, bg=self.bg_color, fg=self.font_color, textvariable=self.solve_moves, pady=20, font=self.font_md)
 
-        self.error = Label(self.cube_fr, text="Your cube is not solvable!", font=self.font_md, fg="white")
+        self.error = Label(self.cube_fr, text="Your cube is not solvable!", font=self.font_md, bg=self.bg_color, fg=self.font_color)
 
         self.draw_menu()
 
@@ -131,17 +133,17 @@ class App:
     def draw_buttons(self):
         buttons = []
         for c in Color:
-            btn = Button(self.btn_cv, width=1, height=1, background=self.colors[c], command=lambda x=c: self.set_color(x))
+            btn = Button(self.btn_cv, background=self.colors[c], command=lambda x=c: self.set_color(x))
             btn.grid(column=c.value, row=0)
             buttons.append(btn)
         return buttons
 
     def draw_moves(self):
         for i, f in enumerate(Faces):
-            btn = Button(self.moves_cv, width=10, text=f.value, font=self.font_sm, command=lambda x=f.value: self.rotate(x, "cw"))
+            btn = Button(self.moves_cv, width=10, text=f.value, bg=self.bg_color, fg=self.font_color, font=self.font_sm, command=lambda x=f.value: self.rotate(x, "cw"))
             btn.grid(column=1, row=i, sticky="w", padx=2, pady=1)
             btn2_name = f.value + "'"
-            btn2 = Button(self.moves_cv, width=10, text=btn2_name, font=self.font_sm, command=lambda x=f.value: self.rotate(x, "ccw"))
+            btn2 = Button(self.moves_cv, width=10, text=btn2_name, bg=self.bg_color, fg=self.font_color, font=self.font_sm, command=lambda x=f.value: self.rotate(x, "ccw"))
             btn2.grid(column=3, row=i, sticky="e", padx=2, pady=1)
 
     def rotate(self, face, direction):
