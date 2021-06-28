@@ -78,7 +78,7 @@ class App:
         # Create the scramble input
         self.scramble_input = Text(self.root, height=1, width=20, bg=self.bg_color, fg=self.font_color, font=self.font_md)
         self.scramble_btn = Button(self.root, width=15, bg=self.bg_color, fg=self.font_color, text="Set Scramble", command=self.set_scramble, font=self.font_sm)
-        self.solve_btn = Button(self.root, width=15, bg=self.bg_color, fg=self.font_color, text="Find a Solution!", command=self.solve, font=self.font_sm)
+        self.solve_btn = Button(self.root, width=20, bg=self.bg_color, fg=self.font_color, text="Find a Solution!", command=self.solve, font=self.font_md)
 
         self.solve_moves = StringVar()
         self.solution = Label(self.root, width=30, height=5, wraplength=300, bg=self.bg_color, fg=self.font_color, textvariable=self.solve_moves, pady=20, font=self.font_md)
@@ -101,10 +101,10 @@ class App:
         self.slv_header.pack()
         self.cube_state = self.state_reset()
         self.draw_cube()
-        self.btn_cv.pack()
+        self.btn_cv.pack(pady=10)
         self.scramble_input.pack()
         self.scramble_btn.pack()
-        self.solve_btn.pack()
+        self.solve_btn.pack(pady=20)
         self.menu_btn.pack(side=BOTTOM, fill=BOTH)
 
     def draw_simulation(self):
@@ -121,7 +121,7 @@ class App:
         self.forget_widgets()
 
         self.solve_moves.set(solution)
-        self.solution.pack()
+        self.solution.pack(pady=80)
         self.menu_btn.pack(side=BOTTOM, fill=BOTH)
 
     # Unload all loaded widgets
@@ -133,7 +133,7 @@ class App:
     def draw_buttons(self):
         buttons = []
         for c in Color:
-            btn = Button(self.btn_cv, background=self.colors[c], command=lambda x=c: self.set_color(x))
+            btn = Button(self.btn_cv, background=self.colors[c], relief=GROOVE, command=lambda x=c: self.set_color(x))
             btn.grid(column=c.value, row=0)
             buttons.append(btn)
         return buttons
