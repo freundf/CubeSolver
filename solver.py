@@ -1,5 +1,6 @@
 from copy import copy
 from queue import Queue
+from time import time
 from constants import Faces
 from cube import Cube
 from kociemba.solver import solve as kociemba_solve
@@ -39,29 +40,35 @@ solved_cube = Cube()
 
 def solve(state):
     cube = Cube(state)
-    if is_solved_cross(cube):
+    if is_solved(cube):
         return ""
     visited = {cube}
     queue = Queue()
     queue.put((cube, []))
 
-    while not queue.empty():
+    time_start = time()
+    time_cur = time_start
+
+    while (time_cur - time_start) < 1:
         cube, path = queue.get()
 
         for face in Faces:
             for direction in ["cw", "ccw"]:
                 new_cube = copy(cube)
                 new_cube.rotate(face.value, direction)
-                if is_solved_cross(new_cube):
+                if is_solved(new_cube):
                     solve_path = path + [(face, direction)]
                     return path_to_string(solve_path)
                 if new_cube not in visited:
                     queue.put((new_cube, path + [(face, direction)]))
                     visited.add(new_cube)
+        time_cur = time()
+
+    return solve_advanced(state)
 
 
-def is_solved_cross(cube):
-    if solved_cube.faces["D"][1::2] == cube.faces["D"][1::2]:
+def is_solved(cube):
+    if solved_cube == cube:
         return True
     else:
         return False

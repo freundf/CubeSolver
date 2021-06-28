@@ -3,7 +3,7 @@ import math
 from collections import namedtuple
 from cube import Cube
 from constants import Color, Faces, moves
-from solver import solve, solvable, solve_advanced
+from solver import solve, solvable
 import random
 
 Rectangle = namedtuple('Rectangle', ['start', 'end'])
@@ -57,6 +57,7 @@ class App:
         # Create the headers
         self.slv_header = Label(self.root, text="Solver", font=self.font_lg, fg=self.font_color, bg="lightgray", pady=10)
         self.sim_header = Label(self.root, text="Simulation", font=self.font_lg, fg=self.font_color, bg="lightgray", pady=10)
+        self.sol_header = Label(self.root, text="Solution", font=self.font_lg, fg=self.font_color, bg="lightgray", pady=10)
 
         # Create the back and exit button
         self.menu_btn = Button(self.root, padx=30, pady=10, bg=self.bg_color, fg=self.font_color, text="Back", command=self.draw_menu)
@@ -76,7 +77,7 @@ class App:
         self.scramble_rnd = Button(self.root, text="Scramble", bg=self.bg_color, fg=self.font_color, command=self.random_scramble, font=self.font_sm)
 
         # Create the scramble input
-        self.scramble_input = Text(self.root, height=1, width=20, bg=self.bg_color, fg=self.font_color, font=self.font_md)
+        self.scramble_input = Text(self.root, height=2, width=20, bg=self.bg_color, fg=self.font_color, font=self.font_md)
         self.scramble_btn = Button(self.root, width=15, bg=self.bg_color, fg=self.font_color, text="Set Scramble", command=self.set_scramble, font=self.font_sm)
         self.solve_btn = Button(self.root, width=20, bg=self.bg_color, fg=self.font_color, text="Find a Solution!", command=self.solve, font=self.font_md)
 
@@ -120,8 +121,9 @@ class App:
     def draw_solution(self, solution):
         self.forget_widgets()
 
+        self.sol_header.pack()
         self.solve_moves.set(solution)
-        self.solution.pack(pady=80)
+        self.solution.pack(pady=50)
         self.menu_btn.pack(side=BOTTOM, fill=BOTH)
 
     # Unload all loaded widgets
@@ -153,7 +155,7 @@ class App:
 
     def solve(self):
         if solvable(self.cube_state):
-            solution = solve_advanced(self.cube_state)
+            solution = solve(self.cube_state)
             self.draw_solution(solution)
             self.error.pack_forget()
         else:
