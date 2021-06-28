@@ -30,7 +30,7 @@ if not fname.is_file():
     fh = fname.open("wb")
     twist_move.tofile(fh)
 else:
-    print("loading " + str(fname) + " table...")
+    # print("loading " + str(fname) + " table...")
     fh = fname.open("rb")
     twist_move = ar.array('H')
     twist_move.fromfile(fh, N_TWIST * N_MOVE)
@@ -55,7 +55,7 @@ if not fname.is_file():
     fh = fname.open("wb")
     flip_move.tofile(fh)
 else:
-    print("loading " + str(fname) + " table...")
+    # print("loading " + str(fname) + " table...")
     fh = fname.open("rb")
     flip_move = ar.array('H')
     flip_move.fromfile(fh, N_FLIP * N_MOVE)
@@ -85,7 +85,7 @@ if not fname.is_file():
     slice_sorted_move.tofile(fh)
     print()
 else:
-    print("loading " + str(fname) + " table...")
+    # print("loading " + str(fname) + " table...")
     fh = fname.open("rb")
     slice_sorted_move = ar.array('H')
     slice_sorted_move.fromfile(fh, N_SLICE_SORTED * N_MOVE)
@@ -114,7 +114,7 @@ if not fname.is_file():
     u_edges_move.tofile(fh)
     print()
 else:
-    print("loading " + str(fname) + " table...")
+    # print("loading " + str(fname) + " table...")
     fh = fname.open("rb")
     u_edges_move = ar.array('H')
     u_edges_move.fromfile(fh, N_SLICE_SORTED * N_MOVE)
@@ -143,7 +143,7 @@ if not fname.is_file():
     d_edges_move.tofile(fh)
     print()
 else:
-    print("loading " + str(fname) + " table...")
+    # print("loading " + str(fname) + " table...")
     fh = fname.open("rb")
     d_edges_move = ar.array('H')
     d_edges_move.fromfile(fh, N_SLICE_SORTED * N_MOVE)
@@ -176,7 +176,7 @@ if not fname.is_file():
     ud_edges_move.tofile(fh)
     print()
 else:
-    print("loading " + str(fname) + " table...")
+    # print("loading " + str(fname) + " table...")
     fh = fname.open("rb")
     ud_edges_move = ar.array('H')
     ud_edges_move.fromfile(fh, N_UD_EDGES * N_MOVE)
@@ -207,7 +207,7 @@ if not fname.is_file():
     fh.close()
     print()
 else:
-    print("loading " + str(fname) + " table...")
+    # print("loading " + str(fname) + " table...")
     fh = fname.open("rb")
     corners_move = ar.array('H')
     corners_move.fromfile(fh, N_CORNERS * N_MOVE)

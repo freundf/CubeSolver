@@ -21,6 +21,9 @@ class App:
     }
 
     margin = 5
+    font_lg = ("Helvetica", "50", "bold")
+    font_md = ("Helvetica", "20", "bold")
+    font_sm = ("Helvetica", "15", "bold")
 
     def __init__(self, state=None):
         if state is None:
@@ -42,16 +45,16 @@ class App:
 
         # Creates the main menu
         self.menu = Frame(self.root, bg="lightgray")
-        self.header = Label(self.menu, text="Cube Solver", font=("Helvetica", "50", "bold"),  bg="lightgray", pady=50)
-        self.sim_btn = Button(self.menu, height=2, width=15, text="Simulation", font=("Helvetica", "20", "bold"), command=self.draw_simulation)
-        self.slv_btn = Button(self.menu, height=2, width=15, text="Solver", font=("Helvetica", "20", "bold"), command=self.draw_solver)
+        self.header = Label(self.menu, text="Cube Solver", font=self.font_lg,  bg="lightgray", pady=50)
+        self.sim_btn = Button(self.menu, height=2, width=15, text="Simulation", font=self.font_md, command=self.draw_simulation)
+        self.slv_btn = Button(self.menu, height=2, width=15, text="Solver", font=self.font_md, command=self.draw_solver)
         self.header.pack()
         self.slv_btn.pack()
         self.sim_btn.pack()
 
         # Creates the back and exit button
         self.menu_btn = Button(self.root, padx=30, pady=10, text="Back", command=self.draw_menu)
-        self.exit_btn = Button(self.menu, height=2, width=15, text="Exit", font=("Helvetica", "15", "bold"), command=self.root.destroy)
+        self.exit_btn = Button(self.menu, height=2, width=15, text="Exit", font=self.font_sm, command=self.root.destroy)
         self.exit_btn.pack(side=BOTTOM, pady=150)
 
         # Creates the buttons to change color
@@ -64,17 +67,17 @@ class App:
         self.moves = self.draw_moves()
 
         # Create the random Scramble Button
-        self.scramble_rnd = Button(self.root, text="Scramble", command=self.random_scramble)
+        self.scramble_rnd = Button(self.root, text="Scramble", command=self.random_scramble, font=self.font_sm)
 
         # Creates the scramble input
-        self.scramble_input = Text(self.root, height=1, width=20, fg="white", font=("Helvetica", "20", "bold"))
-        self.scramble_btn = Button(self.root, text="Set Scramble", command=self.set_scramble)
-        self.solve_btn = Button(self.root, text="Find a Solution!", command=self.solve)
+        self.scramble_input = Text(self.root, height=1, width=20, fg="white", font=self.font_md)
+        self.scramble_btn = Button(self.root, text="Set Scramble", command=self.set_scramble, font=self.font_sm)
+        self.solve_btn = Button(self.root, text="Find a Solution!", command=self.solve, font=self.font_sm)
 
         self.solve_moves = StringVar()
-        self.solution = Label(self.root, width=30, height=5, wraplength=300, textvariable=self.solve_moves, pady=20, font=("Helvetica", "20", "bold"), fg="white")
+        self.solution = Label(self.root, width=30, height=5, wraplength=300, textvariable=self.solve_moves, pady=20, font=self.font_md, fg="white")
 
-        self.error = Label(self.cube_fr, text="Your cube is not solvable!", font=("Helvetica", "20", "bold"), fg="white")
+        self.error = Label(self.cube_fr, text="Your cube is not solvable!", font=self.font_md, fg="white")
 
         self.draw_menu()
 
@@ -130,11 +133,11 @@ class App:
     def draw_moves(self):
         buttons = []
         for i, f in enumerate(Faces):
-            btn = Button(self.moves_cv, width=10, text=f.value, command=lambda x=f.value: self.rotate(x, "cw"))
+            btn = Button(self.moves_cv, width=10, text=f.value, font=self.font_md, command=lambda x=f.value: self.rotate(x, "cw"))
             btn.grid(column=1, row=i, sticky="w")
 
             btn2_name = f.value + "'"
-            btn2 = Button(self.moves_cv, width=10, text=btn2_name, command=lambda x=f.value: self.rotate(x, "ccw"))
+            btn2 = Button(self.moves_cv, width=10, text=btn2_name, font=self.font_md, command=lambda x=f.value: self.rotate(x, "ccw"))
             btn2.grid(column=2, row=i, sticky="e")
         return buttons
 
