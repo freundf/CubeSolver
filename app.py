@@ -102,8 +102,10 @@ class App:
     def draw_solver(self):
         self.forget_widgets()
 
-        self.slv_header.pack()
         self.cube_state = self.state_reset()
+        self.scramble_input.delete("1.0", "end")
+
+        self.slv_header.pack()
         self.draw_cube()
         self.btn_cv.pack(pady=10)
         self.scramble_input.pack()
@@ -114,8 +116,9 @@ class App:
     def draw_simulation(self):
         self.forget_widgets()
 
-        self.sim_header.pack()
         self.cube_state = self.state_reset()
+
+        self.sim_header.pack()
         self.scramble_rnd.pack()
         self.draw_cube()
         self.moves_cv.pack()
