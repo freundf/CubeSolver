@@ -15,30 +15,14 @@ color_to_face = {
     "ORANGE": "L",
 }
 
-
-def cubestate_to_cubestring(state):
-    state = [state[0], state[3], state[2], state[5], state[1], state[4]]
-    string = ""
-    for face in state:
-        for color in face:
-            string += color_to_face[color.name]
-    return string
-
-
-def solve_advanced(state):
-    cube_string = cubestate_to_cubestring(state)
-    path = kociemba_solve(cube_string, 20, 2)
-    path = path.replace("3", "'").replace("1", "")
-    path_list = path.split(" ")
-    path_list.pop()
-    path = " ".join(path_list)
-    return path
-
-
+# Create a cube with no rotations
 solved_cube = Cube()
 
 
 def solve(state):
+    """
+    Tries to find a solution with Breath-first-search
+    """
     cube = Cube(state)
     if is_solved(cube):
         return ""
@@ -49,6 +33,7 @@ def solve(state):
     time_start = time()
     time_cur = time_start
 
+    # while-loop runs for 1 second
     while (time_cur - time_start) < 1:
         cube, path = queue.get()
 
@@ -74,7 +59,35 @@ def is_solved(cube):
         return False
 
 
+def solve_advanced(state):
+    """
+    Solves the cube with kociemba's Algorithm
+    """
+    cube_string = cubestate_to_cubestring(state)
+    path = kociemba_solve(cube_string, 20, 2)
+    path = path.replace("3", "'").replace("1", "")
+    path_list = path.split(" ")
+    path_list.pop()
+    path = " ".join(path_list)
+    return path
+
+
+def cubestate_to_cubestring(state):
+    """
+    Converts a cubestate to a string in the right format for kociemba's Algorithm
+    """
+    state = [state[0], state[3], state[2], state[5], state[1], state[4]]
+    string = ""
+    for face in state:
+        for color in face:
+            string += color_to_face[color.name]
+    return string
+
+
 def path_to_string(path):
+    """
+    Converts a found solution into a string
+    """
     moves = [move[0].value if move[1] == "cw" else (move[0].value + "'") for move in path]
     delete = []
     for i, move in enumerate(moves[:-1]):
@@ -90,6 +103,9 @@ def path_to_string(path):
 
 
 def solvable(state):
+    """
+    Checks if a cube is solvable
+    """
     cube = Cube(state)
 
     # Check if the cube contains the right pieces
@@ -108,6 +124,7 @@ def solvable(state):
     # Check the cube for permutation parity
     corner_perm = get_corner_permutation(cube)
     edge_perm = get_edge_permutation(cube)
+    # A cube is solvable if the corner-permutation has the same parity as the edge-permutation
     if permutation_is_even(corner_perm) != permutation_is_even(edge_perm):
         return False
 

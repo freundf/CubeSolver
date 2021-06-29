@@ -3,19 +3,22 @@ from collections import namedtuple
 
 
 """
+Cube_state indexes:
+                  [0]
               +---------+
               | 0  1  2 |
-              | 3 [0] 4 |
-              | 5  6  7 |
+              | 3  4  5 |
+        [1]   | 6  7  8 |   [3]       [4]
     +---------+---------+---------+---------+
     | 0  1  2 | 0  1  2 | 0  1  2 | 0  1  2 |
-    | 3 [1] 4 | 3 [2] 4 | 3 [3] 4 | 3 [4] 4 |
-    | 5  6  7 | 5  6  7 | 5  6  7 | 5  6  7 |
+    | 3  4  5 | 3  4  5 | 3  4  5 | 3  4  5 |
+    | 6  7  8 | 6  7  8 | 6  7  8 | 6  7  8 |
     +---------+---------+---------+---------+
-              | 0  1  2 |
-              | 3 [5] 4 |
-              | 5  6  7 |
+            / | 0  1  2 |
+           /  | 3  4  5 |
+         [2]  | 6  7  8 |
               +---------+
+                  [5]
 """
 cube_state = [[color] * 9 for color in Color]
 
@@ -48,6 +51,9 @@ Point = namedtuple('Point', ['x', 'y', 'z'])
 
 
 class Piece:
+    """
+    Creates an object that represents a cube piece (edge, corner or center)
+    """
     colors = {
         Color.WHITE: "white",
         Color.ORANGE: "orange",
@@ -86,6 +92,9 @@ class Piece:
         self.color = (self.color[swap[0]], self.color[swap[1]], self.color[swap[2]])
 
     def get_rotation(self, pos):
+        """
+        returns the rotation of each piece that can be decided with some if-queries
+        """
         if self.get_type() == 2:
             if pos.y != 1:
                 if self.color[1] == Color['RED'] or self.color[1] == Color['ORANGE']:
@@ -121,7 +130,9 @@ class Piece:
 
 
 class Cube:
-
+    """
+    Creates an object that represents a Rubik's Cube
+    """
     def __init__(self, state=None):
         if state is None:
             state = cube_state
@@ -161,6 +172,9 @@ class Cube:
         return Cube(state)
 
     def pieces_to_cube_state(self):
+        """
+        converts the piece representation of a cube into a cubestate list
+        """
         state = [None] * 6
         for face, pieces in self.faces.items():
             colors = [None] * 9
@@ -222,6 +236,9 @@ class Cube:
         return faces
 
     def rotate(self, face, direction):
+        """
+        applies a rotation to a cube by generating a new Tuple while swapping the appropriate Pieces
+        """
         if direction == 'cw':
             rot = rotations[face]
         else:

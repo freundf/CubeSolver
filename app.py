@@ -11,6 +11,9 @@ Point = namedtuple('Point', ['x', 'y'])
 
 
 class App:
+    """
+    This class creates the graphical User-Interface
+    """
     colors = {
         Color.WHITE: "white",
         Color.ORANGE: "orange",
@@ -177,6 +180,7 @@ class App:
         for i, v in enumerate(delete):
             scramble.pop(v - i)
 
+        # Check for wrong Characters
         if not all(move in moves for move in scramble):
             self.scramble_input.delete(1.0, "end")
             self.scramble_input.insert(1.0, "False Scramble")
@@ -202,6 +206,25 @@ class App:
         self.cube_state[face][piece] = self.color
         self.draw_cube()
 
+    def transform_coords_to_piece(self, x_coord, y_coord):
+        """
+        calculates the clicked piece from the coordinates of the click
+        """
+        for i, face_coords in ((face_num, self.face_to_coords(face_num)) for face_num in range(6)):
+            if face_coords.start.x <= x_coord < face_coords.end.x and face_coords.start.y <= y_coord < face_coords.end.y:
+                face = i
+                x = math.floor((x_coord - face_coords.start.x) * 3 / (face_coords.end.x - face_coords.start.x))
+                y = math.floor((y_coord - face_coords.start.y) * 3 / (face_coords.end.y - face_coords.start.y))
+                piece = x + (3 * y)
+                return face, piece
+
+        return None
+
+    """
+    The following methods calculate the coordinates of each piece in the Cube-Canvas (self.cube_cv)
+    out of it's index in the cubestate,
+    and draws the cube and each piece 
+    """
     def draw_cube(self):
         self.cube_fr.pack(pady=5, padx=5)
 
@@ -224,17 +247,6 @@ class App:
         real_piece_y = y_piece * piece_height + rect.start.y
 
         self.cube_cv.create_rectangle(real_piece_x, real_piece_y, real_piece_x + piece_width, real_piece_y + piece_height, fill=self.colors[color])
-
-    def transform_coords_to_piece(self, x_coord, y_coord):
-        for i, face_coords in ((face_num, self.face_to_coords(face_num)) for face_num in range(6)):
-            if face_coords.start.x <= x_coord < face_coords.end.x and face_coords.start.y <= y_coord < face_coords.end.y:
-                face = i
-                x = math.floor((x_coord - face_coords.start.x) * 3 / (face_coords.end.x - face_coords.start.x))
-                y = math.floor((y_coord - face_coords.start.y) * 3 / (face_coords.end.y - face_coords.start.y))
-                piece = x + (3 * y)
-                return face, piece
-
-        return None
 
     def face_to_coords(self, face):
         assert 0 <= face < 6
